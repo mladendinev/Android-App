@@ -1,9 +1,10 @@
 package com.example.mladen.firstapp;
 
+import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Intent;
-import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,61 +20,103 @@ import com.facebook.FacebookSdk;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
-public class LoginActivity extends AppCompatActivity {
+import database.helper.DatabaseHelper;
 
-    Button b1, b2;
-    EditText ed1, ed2;
-    TextView tx1, info;
-    private LoginButton loginButton;
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
+
+    Button loginButton;
+    EditText etUsername, etPassword;
+    private LoginButton fbLogin;
     private CallbackManager callbackManager;
+    DatabaseHelper dbHelper;
+    TextView registerLink;
+    int check = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        setContentView(R.layout.activity_main);
 
         //The SDK needs to be initialized before using any of its methods.
-        FacebookSdk.sdkInitialize(getApplicationContext());
+
 
         callbackManager = CallbackManager.Factory.create();
 
-        setContentView(R.layout.activity_main);
-        info = (TextView) findViewById(R.id.info);
-        loginButton = (LoginButton) findViewById(R.id.login_button);
+        fbLogin = (LoginButton) findViewById(R.id.fb_login);
 
-        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+        dbHelper = new DatabaseHelper(this);
+
+        fbLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                info.setText("Successful login" + loginResult.getAccessToken().getUserId());
             }
 
             @Override
             public void onCancel() {
-                info.setText("Login attempt canceled.");
             }
 
             @Override
             public void onError(FacebookException e) {
-                info.setText("Login attempt failed.");
             }
         });
 
-        b1 = (Button) findViewById(R.id.button);
-        ed1 = (EditText) findViewById(R.id.editText);
-        ed2 = (EditText) findViewById(R.id.editText2);
+        loginButton = (Button) findViewById(R.id.loginButton);
+        etUsername = (EditText) findViewById(R.id.etUsername);
+        etPassword = (EditText) findViewById(R.id.etPassword);
+        registerLink = (TextView) findViewById(R.id.sign_up);
+
+        final ContentValues values = new ContentValues();
+//
+//        values.put(DatabaseHelper.USER_COLUMN_NAME, ed1.getText().toString());
+//        dbHelper.insertUser("Mladen logged in");
+//        Toast.makeText(getApplicationContext(), "Hello Mladen", Toast.LENGTH_SHORT).show();
+        loginButton.setOnClickListener(this);
+        registerLink.setOnClickListener(this);
+    }
 
 
-        b1.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.loginButton:
+                String username = etUsername.getText().toString();
+                String password = etPassword.getText().toString();
+
+                User user = new User(username, password);
+
+                authenticate(user);
+                break;
+
+            case R.id.sign_up:
+                Intent registerIntent = new Intent(LoginActivity.this, Register.class);
+                startActivity(registerIntent);
+                break;
+        }
+    }
+
+    private void authenticate(User user) {
+        ServerRequests serverRequest = new ServerRequests(this);
+        serverRequest.fetchUserDataAsyncTask(user, new GetUserCallback() {
             @Override
-            public void onClick(View v) {
-                if (ed1.getText().toString().equals("admin") && ed2.getText().toString().equals("admin")) {
-                    Toast.makeText(getApplicationContext(), "Hello Mladen", Toast.LENGTH_SHORT).show();
+            public void done(User returnedUser) {
+                if (returnedUser == null) {
+                    showErrorMessage();
                 } else {
-                    Toast.makeText(getApplicationContext(), "Wrong Credentials", Toast.LENGTH_SHORT).show();
+//                    logUserIn(returnedUser);
+                    check = 1;
+                    Toast.makeText(getApplicationContext(), "Maikooo", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
+    private void showErrorMessage() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(LoginActivity.this);
+        dialogBuilder.setMessage("Incorrect user details");
+        dialogBuilder.setPositiveButton("Ok", null);
+        dialogBuilder.show();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
