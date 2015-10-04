@@ -25,7 +25,7 @@ import java.util.ArrayList;
 public class ServerRequests {
     ProgressDialog progressDialog;
     public static final int CONNECTION_TIMEOUT = 1000 * 15;
-    public static final String SERVER_ADDRESS = "http://mladendinev.comxa.com";
+    public static final String SERVER_ADDRESS = "http://mladendinev.comxa.com/";
 
     public ServerRequests(Context context) {
         progressDialog = new ProgressDialog(context);
@@ -62,15 +62,16 @@ public class ServerRequests {
         @Override
         protected Void doInBackground(Void... params) {
             ArrayList<NameValuePair> dataToSend = new ArrayList<>();
+
             dataToSend.add(new BasicNameValuePair("username", user.username));
             dataToSend.add(new BasicNameValuePair("password", user.password));
             dataToSend.add(new BasicNameValuePair("email", user.email));
 
+
             HttpParams httpRequestParams = getHttpRequestParams();
 
             HttpClient client = new DefaultHttpClient(httpRequestParams);
-            HttpPost post = new HttpPost(SERVER_ADDRESS
-                    + "Register.php");
+            HttpPost post = new HttpPost(SERVER_ADDRESS + "Register.php");
 
             try {
                 post.setEntity(new UrlEncodedFormEntity(dataToSend));
@@ -122,8 +123,7 @@ public class ServerRequests {
                     CONNECTION_TIMEOUT);
 
             HttpClient client = new DefaultHttpClient(httpRequestParams);
-            HttpPost post = new HttpPost(SERVER_ADDRESS
-                    + "FetchUserData.php");
+            HttpPost post = new HttpPost(SERVER_ADDRESS + "FetchUserData.php");
 
             User returnedUser = null;
 

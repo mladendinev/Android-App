@@ -58,7 +58,6 @@
         android:layout_below="@+id/etPassword"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
-        android:password="false"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignEnd="@+id/etUsername"
@@ -68,7 +67,6 @@
         android:id="@+id/registerButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="registerButton"
         android:text="@string/Register"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />

@@ -13,7 +13,17 @@ public class User {
         this.username = username;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getUsername() {return username;}
+
     public User(String username, String password) {
-        this("",username,password);
+        this("", username, password);
     }
 }

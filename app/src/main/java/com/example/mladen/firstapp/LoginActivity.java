@@ -30,7 +30,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private CallbackManager callbackManager;
     DatabaseHelper dbHelper;
     TextView registerLink;
-    int check = 0;
+    UserLocalStore userLocalStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,19 +47,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         dbHelper = new DatabaseHelper(this);
 
-        fbLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-            }
-
-            @Override
-            public void onCancel() {
-            }
-
-            @Override
-            public void onError(FacebookException e) {
-            }
-        });
 
         loginButton = (Button) findViewById(R.id.loginButton);
         etUsername = (EditText) findViewById(R.id.etUsername);
@@ -68,9 +55,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         final ContentValues values = new ContentValues();
 //
-//        values.put(DatabaseHelper.USER_COLUMN_NAME, ed1.getText().toString());
-//        dbHelper.insertUser("Mladen logged in");
-//        Toast.makeText(getApplicationContext(), "Hello Mladen", Toast.LENGTH_SHORT).show();
         loginButton.setOnClickListener(this);
         registerLink.setOnClickListener(this);
     }
@@ -103,12 +87,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 if (returnedUser == null) {
                     showErrorMessage();
                 } else {
-//                    logUserIn(returnedUser);
-                    check = 1;
-                    Toast.makeText(getApplicationContext(), "Maikooo", Toast.LENGTH_SHORT).show();
+
+                    Intent userHistory = new Intent(LoginActivity.this, WelcomeActivity.class);
+                    userHistory.putExtra("userName", returnedUser.username);
+                    startActivity(userHistory);
                 }
             }
         });
+    }
+
+    private void logUserIn(User returnedUser) {
+        userLocalStore.storeUserData(returnedUser);
+        userLocalStore.setUserLoggedIn(true);
+        startActivity(new Intent(this, WelcomeActivity.class));
     }
 
     private void showErrorMessage() {

@@ -1,5 +1,6 @@
 package com.example.mladen.firstapp;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -43,10 +44,13 @@ public class Register extends AppCompatActivity implements View.OnClickListener 
 
 
         private void registerUser(User user) {
+
             ServerRequests serverRequest = new ServerRequests(this);
             serverRequest.storeUserDataInBackground(user, new GetUserCallback() {
                 @Override
                 public void done(User returnedUser) {
+                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(Register.this);
+
                     Intent loginIntent = new Intent(Register.this, LoginActivity.class);
                     startActivity(loginIntent);
                 }
