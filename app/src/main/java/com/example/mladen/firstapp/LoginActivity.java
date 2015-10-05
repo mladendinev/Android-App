@@ -3,8 +3,10 @@ package com.example.mladen.firstapp;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.PasswordTransformationMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,10 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
-import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
 import database.helper.DatabaseHelper;
@@ -31,15 +30,23 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     DatabaseHelper dbHelper;
     TextView registerLink;
     UserLocalStore userLocalStore;
+    private SessionManager session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_login);
+
+        session = new SessionManager(getApplicationContext());
 
         //The SDK needs to be initialized before using any of its methods.
-
+        if (session.isLoggedIn()) {
+            // User is already logged in. Take him to main activity
+            Intent intent = new Intent(LoginActivity.this, WelcomeActivity.class);
+            startActivity(intent);
+            finish();
+        }
 
         callbackManager = CallbackManager.Factory.create();
 
@@ -49,8 +56,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
         loginButton = (Button) findViewById(R.id.loginButton);
-        etUsername = (EditText) findViewById(R.id.etUsername);
-        etPassword = (EditText) findViewById(R.id.etPassword);
+        etUsername = (EditText) findViewById(R.id.etUsernameLog);
+
+        etPassword = (EditText) findViewById(R.id.etPasswordLog);
+        etPassword.setTypeface(Typeface.DEFAULT);
+        etPassword.setTransformationMethod(new PasswordTransformationMethod());
+
         registerLink = (TextView) findViewById(R.id.sign_up);
 
         final ContentValues values = new ContentValues();
@@ -66,6 +77,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.loginButton:
                 String username = etUsername.getText().toString();
                 String password = etPassword.getText().toString();
+
+                if (username.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(getApplicationContext(),
+                            "Please provide credentials", Toast.LENGTH_LONG)
+                            .show();
+                    break;
+                }
 
                 User user = new User(username, password);
 
@@ -87,9 +105,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 if (returnedUser == null) {
                     showErrorMessage();
                 } else {
-
+                    session.setLogin(true);
                     Intent userHistory = new Intent(LoginActivity.this, WelcomeActivity.class);
                     userHistory.putExtra("userName", returnedUser.username);
+                    dbHelper.insertUser(returnedUser.username, returnedUser.email, returnedUser.password);
                     startActivity(userHistory);
                 }
             }

@@ -1,27 +1,55 @@
 package com.example.mladen.firstapp;
 
-import android.support.v7.app.ActionBarActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
-public class WelcomeActivity extends ActionBarActivity {
+import database.helper.DatabaseHelper;
+
+public class WelcomeActivity extends AppCompatActivity implements View.OnClickListener {
 
     TextView email;
     String username;
+    SessionManager session;
+    DatabaseHelper db;
+    Button logoutButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+
+        db = new DatabaseHelper(this);
+        session = new SessionManager(getApplicationContext());
+
+        if (!session.isLoggedIn()) {
+            logoutUser();
+        }
+
+
         Bundle extras = getIntent().getExtras();
-        if(extras != null){
+        if (extras != null) {
             username = extras.getString("userName");
         }
 
         email = (TextView) findViewById(R.id.name_user);
         email.setText(username);
+
+        logoutButton = (Button) findViewById(R.id.logout);
+        logoutButton.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.logout:
+                logoutUser();
+        }
     }
 
     @Override
@@ -44,5 +72,14 @@ public class WelcomeActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void logoutUser() {
+        session.setLogin(false);
+        db.deleteUserData();
+        // Launching the login activity
+        Intent intent = new Intent(WelcomeActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
