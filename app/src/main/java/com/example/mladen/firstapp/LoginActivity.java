@@ -101,7 +101,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         ServerRequests serverRequest = new ServerRequests(this);
         serverRequest.fetchUserDataAsyncTask(user, new GetUserCallback() {
             @Override
-            public void done(User returnedUser) {
+            public void done(User returnedUser,int hui) {
                 if (returnedUser == null) {
                     showErrorMessage();
                 } else {

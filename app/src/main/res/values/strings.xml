@@ -8,4 +8,5 @@
     <string name="facebook_app_id">955590914479031</string>
     <string name="title_activity_main2">Main2Activity</string>
     <string name="title_activity_welcome">WelcomeActivity</string>
+    <string name="btnUploadToServer">Upload to Server</string>
 </resources>

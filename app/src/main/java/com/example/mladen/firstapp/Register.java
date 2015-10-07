@@ -36,6 +36,7 @@ public class Register extends AppCompatActivity implements View.OnClickListener 
 
 
     }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -51,23 +52,30 @@ public class Register extends AppCompatActivity implements View.OnClickListener 
                     break;
                 }
                 User user = new User(email, username, password);
-                registerUser(user);
+                int exists = 1;
+                registerUser(user, exists);
                 break;
         }
     }
 
 
-        private void registerUser(User user) {
+    private void registerUser(User user, int exists) {
 
-            ServerRequests serverRequest = new ServerRequests(this);
-            serverRequest.storeUserDataInBackground(user, new GetUserCallback() {
-                @Override
-                public void done(User returnedUser) {
-                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(Register.this);
+        ServerRequests serverRequest = new ServerRequests(this);
+        serverRequest.storeUserDataInBackground(user, exists, new GetUserCallback() {
+            @Override
+            public void done(User returnedUser,  int exists) {
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(Register.this);
+                if (exists == 1) {
+                    dialogBuilder.setMessage("There is a user registered with this email");
+                    dialogBuilder.setPositiveButton("Ok", null);
+                    dialogBuilder.show();
 
+                } else {
                     Intent loginIntent = new Intent(Register.this, LoginActivity.class);
                     startActivity(loginIntent);
                 }
-            });
-        }
+            }
+        });
+    }
 }
